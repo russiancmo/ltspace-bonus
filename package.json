@@ -1,0 +1,21 @@
+{
+  "name": "ltspace-bonus",
+  "version": "1.0.0",
+  "description": "",
+  "main": "bot.js",
+  "scripts": {
+    "start": "node bot.js"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "dependencies": {
+    "@langchain/community": "0.3.32",
+    "@langchain/core": "0.3.40",
+    "@langchain/mistralai": "0.2.0",
+    "dotenv": "16.4.7",
+    "googleapis": "144.0.0",
+    "grammy": "1.35.0",
+    "langchain": "0.3.19"
+  }
+}
