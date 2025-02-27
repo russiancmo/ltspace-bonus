@@ -1,6 +1,7 @@
 process.env.NODE_OPTIONS = '--openssl-legacy-provider';
 
 const { Bot } = require('grammy');
+const fs = require('fs');
 const { ChatMistralAI } = require('@langchain/mistralai');
 const { AgentExecutor, createToolCallingAgent } = require('langchain/agents');
 const { ChatPromptTemplate } = require('@langchain/core/prompts');
@@ -20,10 +21,13 @@ const mistral = new ChatMistralAI({
   apiKey: process.env.MISTRAL_API_KEY,
   modelName: 'mistral-tiny',
 });
+const keyfileData = fs.readFileSync('./keyfile.json', 'utf8');
+const keyfile = JSON.parse(keyfileData);
 
 const gmailParams = {
   credentials: {
-    keyfile: './keyfile.json',
+    clientEmail: keyfile.client_email,
+    privateKey: keyfile.private_key
   },
   scopes: ['https://mail.google.com/'],
 };
