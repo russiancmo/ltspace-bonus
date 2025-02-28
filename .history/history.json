@@ -1,0 +1,1 @@
+{"user-id":{"undefined":{"messages":[{"type":"human","data":{"content":"Привет, меня зовут Макс","additional_kwargs":{},"response_metadata":{}}},{"type":"ai","data":{"content":"Привет, Макс! Рад знакомству. Как я могу помочь тебе сегодня?","tool_calls":[],"invalid_tool_calls":[],"additional_kwargs":{},"response_metadata":{}}}]}}}
