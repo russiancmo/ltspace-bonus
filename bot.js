@@ -1,17 +1,8 @@
-process.env.NODE_OPTIONS = '--openssl-legacy-provider';
-
 const { Bot } = require('grammy');
-const fs = require('fs');
 const { ChatMistralAI } = require('@langchain/mistralai');
 const { AgentExecutor, createToolCallingAgent } = require('langchain/agents');
 const { ChatPromptTemplate } = require('@langchain/core/prompts');
-const {
-  GmailCreateDraft,
-  GmailGetMessage,
-  GmailGetThread,
-  GmailSearch,
-  GmailSendMessage,
-} = require('@langchain/community/tools/gmail');
+const { DuckDuckGoSearch } = require("@langchain/community/tools/duckduckgo_search");
 const dotenv = require('dotenv');
 dotenv.config();
 
@@ -19,34 +10,21 @@ const bot = new Bot(process.env.TELEGRAM_BOT_TOKEN);
 
 const mistral = new ChatMistralAI({
   apiKey: process.env.MISTRAL_API_KEY,
-  modelName: 'mistral-tiny',
+  modelName: 'mistral-large-2411',
 });
-const keyfileData = fs.readFileSync('./keyfile.json', 'utf8');
-const keyfile = JSON.parse(keyfileData);
 
-const gmailParams = {
-  credentials: {
-    clientEmail: keyfile.client_email,
-    privateKey: keyfile.private_key
-  },
-  scopes: ['https://mail.google.com/'],
-};
 
 const tools = [
-  new GmailCreateDraft(gmailParams),
-  new GmailGetMessage(gmailParams),
-  new GmailGetThread(gmailParams),
-  new GmailSearch(gmailParams),
-  new GmailSendMessage(gmailParams),
+  new DuckDuckGoSearch({ maxResults: 5 })
 ];
 
 const startBot = async () => {
   const prompt = ChatPromptTemplate.fromMessages([
     [
       'system',
-      'Ты менеджер по продажам. Ты можешь отвечать на вопросы клиента только на основе информации из инструмента поиска. ' +
-        'Если информации недостаточно, честно скажи, что не можешь ответить. Не выдумывай и не делай предположений. ' +
-        'Если клиент хочет оформить заказ, используй инструмент оформления заказа.',
+      'Ты личный помощник. У тебя есть возможность искать информацию в интернете. ' +
+      'Подумай перед тем как ответить на вопрос. Также при использовании информации из DuckDuckGoSearch. ' +
+      'Давай только обдуманные ответы',
     ],
     ['human', '{input}'],
     ['placeholder', '{agent_scratchpad}'],
