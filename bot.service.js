@@ -97,3 +97,27 @@ export const runUserAgent = async (userMessage, tg_id) => {
 
   return formatAgentOutput(result.output);
 };
+
+export const transcribeVoice = async (buffer) => {
+  const formData = new FormData();
+  const audioBlob = new Blob([buffer], { type: 'audio/ogg' }); // Убедитесь, что тип аудио верен
+  formData.append('file', audioBlob, 'audio.ogg'); // Передаем файл в поле 'file'
+
+  try {
+    const transcribe = await fetch('http://localhost:5000/transcribe', {
+      method: 'POST',
+      body: formData, // Передаем данные как FormData
+    });
+
+    if (!transcribe.ok) {
+      throw new Error('Ошибка при отправке на сервер');
+    }
+
+    const result = await transcribe.json();
+    return result.text;
+  } catch (error) {
+    console.error('Ошибка транскрибации:', error);
+    throw new Error('Ошибка транскрибации');
+  }
+};
+
