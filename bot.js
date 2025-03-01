@@ -1,14 +1,16 @@
 import { Bot } from 'grammy';
-import * as dotenv  from 'dotenv';
+import * as dotenv from 'dotenv';
 import { runUserAgent } from './bot.service.js';
 dotenv.config();
 
-const bot = new Bot(process.env.TELEGRAM_BOT_TOKEN);
+export const bot = new Bot(process.env.TELEGRAM_BOT_TOKEN);
 
 const startBot = async () => {
   // Обработчик команды /start
   bot.command('start', async (ctx) => {
-    await ctx.reply('Привет! Я могу помочь вам!');
+    const tg_id = ctx.chat.id;
+    const result = await runUserAgent('Привет', tg_id);
+    await ctx.reply(result);
   });
 
   // Обработчик команды /help
@@ -23,11 +25,8 @@ const startBot = async () => {
     try {
       const userMessage = ctx.message.text;
       const tg_id = ctx.chat.id;
-
       await ctx.replyWithChatAction('typing');
-
       const result = await runUserAgent(userMessage, tg_id);
-
       await ctx.reply(result);
     } catch (error) {
       console.error('Ошибка при обработке сообщения:', error);

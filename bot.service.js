@@ -3,7 +3,11 @@ import { ChatMistralAI } from '@langchain/mistralai';
 import { AgentExecutor, createToolCallingAgent } from 'langchain/agents';
 import { ChatPromptTemplate } from '@langchain/core/prompts';
 import { DuckDuckGoSearch } from '@langchain/community/tools/duckduckgo_search';
+import { DynamicStructuredTool } from '@langchain/core/tools';
+import { z } from 'zod';
+import fs from 'fs';
 import { BufferMemory } from 'langchain/memory';
+import { bot } from './bot.js';
 dotenv.config();
 
 class TrimmedBufferMemory extends BufferMemory {
@@ -50,18 +54,31 @@ const mistral = new ChatMistralAI({
   streaming: false,
 });
 
-const tools = [new DuckDuckGoSearch({ maxResults: 5 })];
+const sendMessageToManagerTool = new DynamicStructuredTool({
+  name: 'sendMessageToManager',
+  description:
+    'Запускай этот инструмент, когда тебе нужно отправить сообщение менеджеру. В сообщении укажи всю информацию, которую ты получил от клиента.',
+  schema: z.object({
+    message: z.string().describe('Сообщение для менеджера'),
+  }),
+  func: async ({ message }) => {
+    console.log('sendСообщение:', { message });
+    await bot.api.sendMessage(process.env.MANAGER_TG_ID, message);
+    return 'Сообщение отправлено!';
+  },
+});
+
+const tools = [new DuckDuckGoSearch({ maxResults: 5 }), sendMessageToManagerTool];
 
 // Объект для хранения памяти пользователей
 const userMemoryMap = {};
 
 export const runUserAgent = async (userMessage, tg_id) => {
+  const systemPrompt = fs.readFileSync('./systemPrompt.txt', 'utf-8');
   const prompt = ChatPromptTemplate.fromMessages([
     [
       'system',
-      'Ты личный помощник. У тебя есть возможность искать информацию в интернете. ' +
-        'Подумай перед тем как ответить на вопрос. Также при использовании информации из DuckDuckGoSearch. ' +
-        'Давай только обдуманные ответы',
+      systemPrompt,
     ],
     ['placeholder', '{chat_history}'],
     ['human', '{input}'],
