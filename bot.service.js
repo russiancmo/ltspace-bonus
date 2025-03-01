@@ -1,4 +1,4 @@
-import * as dotenv  from 'dotenv';
+import * as dotenv from 'dotenv';
 import { ChatMistralAI } from '@langchain/mistralai';
 import { AgentExecutor, createToolCallingAgent } from 'langchain/agents';
 import { ChatPromptTemplate } from '@langchain/core/prompts';
@@ -46,7 +46,7 @@ const formatAgentOutput = (output) => {
 
 const mistral = new ChatMistralAI({
   apiKey: process.env.MISTRAL_API_KEY,
-  modelName: 'mistral-large-2411',
+  modelName: 'mistral-large-latest',
   streaming: false,
 });
 
@@ -95,5 +95,5 @@ export const runUserAgent = async (userMessage, tg_id) => {
 
   const result = await userAgent.invoke({ input: userMessage });
 
-  return formatAgentOutput(result.output)
+  return formatAgentOutput(result.output);
 };
